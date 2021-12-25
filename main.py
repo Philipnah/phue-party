@@ -27,6 +27,10 @@ controlledLightType = str(controlledLight['config']['archetype'])
 
 print("The light you have selected is a '" + controlledLightType + "'")
 
+def BPMtoSeconds(bpm):
+	return 60/bpm
+
+
 # While button is pressed
 def StrobeLight():
     # Make sure the light is on
@@ -61,7 +65,7 @@ def BeatLightMatch():
 		bridge.set_light(controlledLightString, offCommand)
 		time.sleep(0.125)
 
-BeatLightMatch()
+# BeatLightMatch()
 
 
 # # Prints if light 1 is on or not
