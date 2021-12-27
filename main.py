@@ -1,7 +1,8 @@
 from phue import Bridge
 import time
+from secrets import hueIP
 
-bridge = Bridge("192.168.0.10")
+bridge = Bridge(hueIP)
 
 
 try:
@@ -47,7 +48,6 @@ def StrobeLight():
 		bridge.set_light(controlledLightString, offCommand)
 
 
-# StrobeLight()
 
 
 def BeatLightMatch():
@@ -64,6 +64,15 @@ def BeatLightMatch():
 		time.sleep(0.125)
 		bridge.set_light(controlledLightString, offCommand)
 		time.sleep(0.125)
+
+def TurnLightOff():
+	bridge.set_light(controlledLightString, 'on', False)
+
+
+
+StrobeLight()
+
+TurnLightOff()
 
 # BeatLightMatch()
 
