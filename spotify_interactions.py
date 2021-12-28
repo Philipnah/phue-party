@@ -1,33 +1,78 @@
 import requests
+import webbrowser
 import base64
 import datetime
 from secrets import *
 
 SPOTIFY_GET_TRACK_URL = "https://api.spotify.com/v1/me/player/currently-playing"
+SPOTIFY_URI_REDIRECT = "https%3A%2F%2Fphilipnah.github.io%2F"
+SPOTIFY_AUTHORIZE_URL = "https://accounts.spotify.com/authorize"
+SPOTIFY_ACCESS_TOKEN_URL = "https://accounts.spotify.com/api/token"
+
+# see currently playing and analyse tracks 
+scopes = "user-read-currently-playing"
 
 class spotify_interactions():
-	access_token = "BQA16-fin1asMjEGV1CqBBPkvG0v_MJ8V3OnQgANZbo6mwoTeC2UU_SPIHhMmp-srv43Wx8pAkHCtcCgu0D32wqs5yIPFXZG1LeUI1P5s2nDziukSD6L6ant3_MnWtaQjgd396QPzprNxsKWjPNV7hD_AJlhlgk"
+	access_token = None
 	tokenExpires = datetime.datetime.now()
 
-	def EstablishContact(self):
-		"""Returns 'access token', when clientID and clientSecret are sent to spotify."""
-		authURL = "https://accounts.spotify.com/api/token"
+	def SpotifyConnect(self):
+		"""
+		Returns access token and refresh token
+		"""
 		
-		message = f"{clientID}:{clientSecret}"
-		messageAscii = message.encode('ascii') 
-		messageEncode = base64.b64encode(messageAscii)
-		base64Message = messageEncode.decode('ascii')
+		# First send this url to spotify with all information
+		spotify_get_url = f"{SPOTIFY_AUTHORIZE_URL}?client_id={clientID}&response_type=code&redirect_uri={SPOTIFY_URI_REDIRECT}&scope={scopes}"
+		webbrowser.open(spotify_get_url,new=2)
 
-		authHeaders = {"Authorization": "Basic " + base64Message}
-		authData = {"grant_type": "client_credentials"}
+		# receive response from spotify
+		returnedURL = input("Copy and paste the url from your browser here: ")
 
-		nowTime = datetime.datetime.now()
-		response = requests.post(authURL, headers=authHeaders, data=authData).json()
+		# isolates the access_token from url
+		returnedAccessToken = returnedURL.split("code=")[1]
 		
-		self.tokenExpires = nowTime + datetime.timedelta(response['expires_in'] - 10)
-		self.access_token = response['access_token']
+		# create client base64 string
+		clientData = f"{clientID}:{clientSecret}"
+		clientDataAscii = clientData.encode('ascii') 
+		clientDataEncode = base64.b64encode(clientDataAscii)
+		base64ClientData = clientDataEncode.decode('ascii')
 
-		return response['access_token']
+		# get access token and refresh token
+		response = requests.post(
+			SPOTIFY_ACCESS_TOKEN_URL,
+			headers={"Authorization": f"Basic {base64ClientData}",
+				"Content-Type": "application/x-www-form-urlencoded"
+			},
+			data={
+				"grant_type":"authorization_code",
+				"code": returnedAccessToken,
+				"redirect_uri": SPOTIFY_URI_REDIRECT,
+			}
+		)
+
+		if response.status_code == 200:
+			print("\nrequests was successful")
+			print(response.json())
+		else:
+			print("\n", response.status_code, response.text)
+		
+		# authURL = "https://accounts.spotify.com/api/token"
+		
+		# message = f"{clientID}:{clientSecret}"
+		# messageAscii = message.encode('ascii') 
+		# messageEncode = base64.b64encode(messageAscii)
+		# base64Message = messageEncode.decode('ascii')
+
+		# authHeaders = {"Authorization": "Basic " + base64Message}
+		# authData = {"grant_type": "client_credentials"}
+
+		# nowTime = datetime.datetime.now()
+		# response = requests.post(authURL, headers=authHeaders, data=authData).json()
+		
+		# self.tokenExpires = nowTime + datetime.timedelta(response['expires_in'] - 10)
+		# self.access_token = response['access_token']
+
+		# return response['access_token']
 
 	# Music needs to be playing, otherwise the API will return HTTP status_code 204 (No content)
 	def GetCurrentTrack(self):
@@ -56,5 +101,5 @@ class spotify_interactions():
 
 
 spot = spotify_interactions()
-# print(spot.EstablishContact())
-print(spot.GetCurrentTrack())
+print(spot.SpotifyConnect())
+# print(spot.GetCurrentTrack())
