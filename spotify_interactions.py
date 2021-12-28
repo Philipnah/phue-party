@@ -5,7 +5,8 @@ import datetime
 from secrets import *
 
 SPOTIFY_GET_TRACK_URL = "https://api.spotify.com/v1/me/player/currently-playing"
-SPOTIFY_URI_REDIRECT = "https%3A%2F%2Fphilipnah.github.io%2F"
+SPOTIFY_URI_REDIRECT = "https://philipnah.github.io/"
+SPOTIFY_URI_REDIRECT_ENCODED = "https%3A%2F%2Fphilipnah.github.io%2F"
 SPOTIFY_AUTHORIZE_URL = "https://accounts.spotify.com/authorize"
 SPOTIFY_ACCESS_TOKEN_URL = "https://accounts.spotify.com/api/token"
 
@@ -22,7 +23,7 @@ class spotify_interactions():
 		"""
 		
 		# First send this url to spotify with all information
-		spotify_get_url = f"{SPOTIFY_AUTHORIZE_URL}?client_id={clientID}&response_type=code&redirect_uri={SPOTIFY_URI_REDIRECT}&scope={scopes}"
+		spotify_get_url = f"{SPOTIFY_AUTHORIZE_URL}?client_id={clientID}&response_type=code&redirect_uri={SPOTIFY_URI_REDIRECT_ENCODED}&scope={scopes}"
 		webbrowser.open(spotify_get_url,new=2)
 
 		# receive response from spotify
@@ -51,7 +52,7 @@ class spotify_interactions():
 		)
 
 		if response.status_code == 200:
-			print("\nrequests was successful")
+			print("\nrequests was successful!\n")
 			print(response.json())
 		else:
 			print("\n", response.status_code, response.text)
